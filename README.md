@@ -2,7 +2,7 @@
 
 ## Judul Project
 
-**Call of Books: Gerbang Menuju Katalog Horor Kosmik Anda**
+**OurRecipe: Katalog Resep Kuliner untuk keseharian kalian.**
 
 Nama  : Fathan Andhika Daffa Putra Adhiwibowo  
 NIM   : 2410501056  
@@ -10,7 +10,7 @@ Kelas : A
 
 ## Tema yang dipilih
 
-**Tema C: BookShelf - Katalog Buku**
+**Tema A: ResepKita - Katalog Resep Kuliner**
 
 ## Tech Stack
 

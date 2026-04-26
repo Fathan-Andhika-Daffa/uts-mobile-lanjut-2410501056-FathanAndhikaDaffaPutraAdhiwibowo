@@ -3,99 +3,106 @@ import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndi
 import { recipeApi } from '../api/recipeApi';
 
 export default function BrowseScreen({ route, navigation }) {
-  const activeCategory = route?.params?.category || 'Beef';
+  const cat = route?.params?.category || 'Beef';
 
-  const [items, setItems] = useState([]);
-  const [isBusy, setIsBusy] = useState(true);
-  const [isPulling, setIsPulling] = useState(false);
+  const [dataList, setDataList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pulling, setPulling] = useState(false);
 
   useEffect(() => {
-    loadAll();
-  }, [activeCategory]);
+    initLoad();
+  }, [cat]);
 
-  const loadAll = async () => {
-    setIsBusy(true);
-    await requestData();
-    setIsBusy(false);
+  const initLoad = async () => {
+    setLoading(true);
+    await fetchData();
+    setLoading(false);
   };
 
-  const refreshNow = async () => {
-    setIsPulling(true);
-    await requestData();
-    setIsPulling(false);
+  const handleRefresh = async () => {
+    setPulling(true);
+    await fetchData();
+    setPulling(false);
   };
 
-  const requestData = async () => {
+  const fetchData = async () => {
     try {
-      const res = await recipeApi.getRecipesByCategory(activeCategory);
+      const res = await recipeApi.getRecipesByCategory(cat);
 
-      let arr = [];
-      if (res && res.data) {
-        arr = res.data.meals ? res.data.meals : [];
+      let list = [];
+
+      if (res && res.meals) {
+        list = res.meals;
       }
 
-      setItems(arr);
-    } catch (e) {
+      setDataList(list);
+    } catch (err) {
+      setDataList([]);
+      console.log('fetch error:', err);
     }
   };
 
-  if (isBusy) {
+  if (loading) {
     return (
-      <View style={styles.centerBox}>
+      <View style={styles.center}>
         <ActivityIndicator size="large" color="#fff" />
-        <Text style={styles.loadingText}>Mencari resep...</Text>
+        <Text style={styles.loadingTxt}>Mencari resep...</Text>
       </View>
     );
   }
 
-  const renderCard = ({ item }) => {
-    const title = item.strMeal;
-    const image = item.strMealThumb;
+  const renderItem = ({ item }) => {
+    const name = item.strMeal;
+    const img = item.strMealThumb;
 
     return (
       <TouchableOpacity
-        style={styles.cardBox}
+        style={styles.card}
         activeOpacity={0.7}
         onPress={() =>
           navigation.navigate('Detail', {
             recipeId: item.idMeal,
-            title: title
+            title: name
           })
         }
       >
-        <Image source={{ uri: image }} style={styles.img} />
+        <Image source={{ uri: img }} style={styles.image} />
 
-        <View style={styles.textArea}>
-          <Text style={styles.titleText} numberOfLines={2}>
-            {title}
+        <View style={styles.textBox}>
+          <Text numberOfLines={2} style={styles.title}>
+            {name}
           </Text>
         </View>
       </TouchableOpacity>
     );
   };
 
-  const total = items.length;
+  const total = dataList.length;
 
   return (
-    <View style={styles.main}>
+    <View style={styles.wrap}>
       <FlatList
-        data={items}
-        renderItem={renderCard}
-        keyExtractor={(item, i) => item.idMeal || i.toString()}
+        data={dataList}
+        renderItem={renderItem}
+        keyExtractor={(item, idx) => item.idMeal || idx.toString()}
         numColumns={2}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Koleksi {activeCategory}</Text>
-            <Text style={styles.headerSub}>{total} menu</Text>
+            <Text style={styles.headerTitle}>Koleksi {cat}</Text>
+            <Text style={styles.sub}>{total} item</Text>
           </View>
         }
         ListEmptyComponent={
-          <View style={styles.emptyBox}>
+          <View style={styles.empty}>
             <Text style={styles.emptyText}>Tidak ada data</Text>
           </View>
         }
         refreshControl={
-          <RefreshControl refreshing={isPulling} onRefresh={refreshNow} tintColor="#fff" />
+          <RefreshControl
+            refreshing={pulling}
+            onRefresh={handleRefresh}
+            tintColor="#fff"
+          />
         }
         contentContainerStyle={{ paddingBottom: 20 }}
       />
@@ -104,18 +111,18 @@ export default function BrowseScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  main: {
+  wrap: {
     flex: 1,
     backgroundColor: '#0D0D0D',
     paddingHorizontal: 10
   },
-  centerBox: {
+  center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#0D0D0D'
   },
-  loadingText: {
+  loadingTxt: {
     color: '#777',
     marginTop: 10,
     fontSize: 13
@@ -126,45 +133,45 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#fff',
-    fontSize: 25,
+    fontSize: 24,
     fontWeight: 'bold'
   },
-  headerSub: {
+  sub: {
     color: '#777',
     fontSize: 13,
     marginTop: 3
   },
-  cardBox: {
+  card: {
     flex: 1,
     margin: 8,
-    borderRadius: 18,
+    borderRadius: 16,
     backgroundColor: '#1A1A1A',
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#333',
     elevation: 3
   },
-  img: {
+  image: {
     width: '100%',
     height: 160
   },
-  textArea: {
+  textBox: {
     padding: 12,
-    justifyContent: 'center',
-    minHeight: 70
+    minHeight: 70,
+    justifyContent: 'center'
   },
-  titleText: {
+  title: {
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center'
   },
-  emptyBox: {
+  empty: {
     marginTop: 50,
     alignItems: 'center'
   },
   emptyText: {
     color: '#777',
-    fontSize: 15
+    fontSize: 14
   }
 });

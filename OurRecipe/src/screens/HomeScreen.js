@@ -3,76 +3,85 @@ import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndi
 import { recipeApi } from '../api/recipeApi';
 
 export default function HomeScreen({ navigation }) {
-  const [items, setItems] = useState([]);
-  const [loadingState, setLoadingState] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const [list, setList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorFlag, setErrorFlag] = useState(false);
 
   useEffect(() => {
-    loadData();
+    init();
   }, []);
 
-  const loadData = async () => {
-    setHasError(false);
-    setLoadingState(true);
+  const init = async () => {
+    setErrorFlag(false);
+    setLoading(true);
 
     try {
       const res = await recipeApi.getCategories();
-      let temp = [];
 
-      if (res && res.data && res.data.categories) {
-        temp = res.data.categories;
+      let data = [];
+
+      if (res && res.categories) {
+        data = res.categories;
       }
 
-      setItems(temp);
-    } catch (e) {
-      setHasError(true);
+      setList(data);
+    } catch (err) {
+      setErrorFlag(true);
+      console.log('home error:', err);
     }
 
-    setLoadingState(false);
+    setLoading(false);
   };
 
-  if (loadingState) {
+  if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#ffffff" />
-        <Text style={styles.text}>Memuat...</Text>
+        <ActivityIndicator size="large" color="#fff" />
+        <Text style={styles.text}>Memuat kategori...</Text>
       </View>
     );
   }
 
-  if (hasError) {
+  if (errorFlag) {
     return (
       <View style={styles.center}>
-        <Text style={styles.error}>Terjadi kesalahan</Text>
-        <TouchableOpacity style={styles.btn} onPress={loadData}>
-          <Text style={styles.btnText}>Ulangi</Text>
+        <Text style={styles.error}>Gagal load data</Text>
+        <TouchableOpacity style={styles.btn} onPress={init}>
+          <Text style={styles.btnText}>Coba lagi</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  const renderCard = ({ item }) => {
-    const title = item.strCategory;
+  const renderItem = ({ item }) => {
+    const name = item.strCategory;
     const img = item.strCategoryThumb;
 
     return (
       <TouchableOpacity
         style={styles.card}
-        onPress={() => navigation.navigate('Browse', { category: title })}
+        activeOpacity={0.8}
+        onPress={() => navigation.navigate('Browse', { category: name })}
       >
-        <Image source={{ uri: img }} style={styles.image} />
-        <Text style={styles.title}>{title}</Text>
+        <Image source={{ uri: img }} style={styles.img} />
+        <Text style={styles.title}>{name}</Text>
       </TouchableOpacity>
     );
   };
 
   return (
-    <View style={styles.wrapper}>
+    <View style={styles.wrap}>
       <FlatList
-        data={items}
-        renderItem={renderCard}
-        keyExtractor={(item, i) => item.idCategory || String(i)}
+        data={list}
+        renderItem={renderItem}
+        keyExtractor={(item, i) => item.idCategory || i.toString()}
         numColumns={2}
+        ListHeaderComponent={
+          <View style={styles.top}>
+            <Text style={styles.big}>Halo, mau masak apa?</Text>
+            <Text style={styles.small}>Pilih kategori favoritmu</Text>
+          </View>
+        }
         contentContainerStyle={styles.list}
       />
     </View>
@@ -80,7 +89,7 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
+  wrap: {
     flex: 1,
     backgroundColor: '#0D0D0D'
   },
@@ -91,43 +100,63 @@ const styles = StyleSheet.create({
     backgroundColor: '#0D0D0D'
   },
   text: {
-    color: '#fff',
-    marginTop: 10
+    color: '#777',
+    marginTop: 10,
+    fontSize: 14
   },
   error: {
     color: '#ff4444',
-    marginBottom: 15
+    marginBottom: 14,
+    fontSize: 15
   },
   btn: {
-    padding: 10,
-    backgroundColor: '#333',
-    borderRadius: 8
+    paddingVertical: 10,
+    paddingHorizontal: 22,
+    backgroundColor: '#fff',
+    borderRadius: 22
   },
   btnText: {
-    color: '#fff'
+    color: '#000',
+    fontWeight: '600'
+  },
+  top: {
+    padding: 20,
+    marginTop: 8
+  },
+  big: {
+    color: '#fff',
+    fontSize: 23,
+    fontWeight: 'bold'
+  },
+  small: {
+    color: '#777',
+    fontSize: 13,
+    marginTop: 4
   },
   list: {
-    padding: 10
+    paddingHorizontal: 10,
+    paddingBottom: 20
   },
   card: {
     flex: 1,
     margin: 8,
-    padding: 14,
-    borderRadius: 14,
+    padding: 18,
+    borderRadius: 18,
     alignItems: 'center',
     backgroundColor: '#1A1A1A',
     borderWidth: 1,
-    borderColor: '#333'
+    borderColor: '#333',
+    elevation: 2
   },
-  image: {
+  img: {
     width: '100%',
-    height: 80,
+    height: 90,
     resizeMode: 'contain'
   },
   title: {
     marginTop: 10,
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600'
   }
 });

@@ -6,4 +6,6 @@ const api = axios.create({
 
 export const recipeApi = {
   getCategories: () => api.get('/categories.php'),
+  getRecipesByCategory: (category) => api.get(`/filter.php?c=${category}`),
+  searchRecipes: (query) => api.get(`/search.php?s=${query}`)
 };

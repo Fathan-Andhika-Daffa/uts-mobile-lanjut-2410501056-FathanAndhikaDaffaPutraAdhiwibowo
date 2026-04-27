@@ -1,162 +1,135 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+  View, Text, FlatList, Image,
+  TouchableOpacity, StyleSheet,
+  RefreshControl
+} from 'react-native';
 import { recipeApi } from '../api/recipeApi';
 
+function SkeletonCard() {
+  return (
+    <View style={[styles.card, styles.skeleton]}>
+      <View style={styles.skeletonThumb} />
+      <View style={styles.skeletonLabel} />
+    </View>
+  );
+}
+
 export default function HomeScreen({ navigation }) {
-  const [list, setList] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [errorFlag, setErrorFlag] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    init();
+    fetchCategories();
   }, []);
 
-  const init = async () => {
-    setErrorFlag(false);
-    setLoading(true);
-
+  async function fetchCategories() {
+    setFailed(false);
     try {
       const res = await recipeApi.getCategories();
-
-      let data = [];
-
-      if (res && res.categories) {
-        data = res.categories;
-      }
-
-      setList(data);
-    } catch (err) {
-      setErrorFlag(true);
-      console.log('home error:', err);
+      setCategories(res?.categories ?? []);
+    } catch (e) {
+      setFailed(true);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    setLoading(false);
-  };
+  async function handleRefresh() {
+    setRefreshing(true);
+    await fetchCategories();
+    setRefreshing(false);
+  }
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#fff" />
-        <Text style={styles.text}>Memuat kategori...</Text>
+      <View style={styles.main}>
+        <View style={styles.header}>
+          <View style={styles.skeletonTitle} />
+          <View style={styles.skeletonSub} />
+        </View>
+        <View style={styles.skeletonGrid}>
+          {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+        </View>
       </View>
     );
   }
 
-  if (errorFlag) {
+  if (failed) {
     return (
       <View style={styles.center}>
-        <Text style={styles.error}>Gagal load data</Text>
-        <TouchableOpacity style={styles.btn} onPress={init}>
-          <Text style={styles.btnText}>Coba lagi</Text>
+        <Text style={styles.errIcon}>⚠️</Text>
+        <Text style={styles.errMsg}>Gagal memuat kategori</Text>
+        <Text style={styles.errSub}>Periksa koneksi internet kamu</Text>
+        <TouchableOpacity style={styles.retryBtn} onPress={fetchCategories}>
+          <Text style={styles.retryText}>Coba Lagi</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  const renderItem = ({ item }) => {
-    const name = item.strCategory;
-    const img = item.strCategoryThumb;
-
-    return (
-      <TouchableOpacity
-        style={styles.card}
-        activeOpacity={0.8}
-        onPress={() => navigation.navigate('Browse', { category: name })}
-      >
-        <Image source={{ uri: img }} style={styles.img} />
-        <Text style={styles.title}>{name}</Text>
-      </TouchableOpacity>
-    );
-  };
-
   return (
-    <View style={styles.wrap}>
+    <View style={styles.main}>
       <FlatList
-        data={list}
-        renderItem={renderItem}
-        keyExtractor={(item, i) => item.idCategory || i.toString()}
+        data={categories}
+        keyExtractor={item => item.idCategory}
         numColumns={2}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.card}
+            activeOpacity={0.75}
+            onPress={() => navigation.navigate('Browse', { category: item.strCategory })}
+          >
+            <Image source={{ uri: item.strCategoryThumb }} style={styles.thumb} />
+            <View style={styles.cardFooter}>
+              <Text style={styles.label}>{item.strCategory}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
         ListHeaderComponent={
-          <View style={styles.top}>
-            <Text style={styles.big}>Halo, mau masak apa?</Text>
-            <Text style={styles.small}>Pilih kategori favoritmu</Text>
+          <View style={styles.header}>
+            <Text style={styles.greeting}>Halo, mau masak apa?</Text>
+            <Text style={styles.sub}>{categories.length} kategori tersedia</Text>
           </View>
         }
-        contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#fff" />
+        }
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    flex: 1,
-    backgroundColor: '#0D0D0D'
-  },
+  main: { flex: 1, backgroundColor: '#0D0D0D' },
   center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#0D0D0D'
+    flex: 1, justifyContent: 'center', alignItems: 'center',
+    backgroundColor: '#0D0D0D', padding: 24
   },
-  text: {
-    color: '#777',
-    marginTop: 10,
-    fontSize: 14
-  },
-  error: {
-    color: '#ff4444',
-    marginBottom: 14,
-    fontSize: 15
-  },
-  btn: {
-    paddingVertical: 10,
-    paddingHorizontal: 22,
-    backgroundColor: '#fff',
-    borderRadius: 22
-  },
-  btnText: {
-    color: '#000',
-    fontWeight: '600'
-  },
-  top: {
-    padding: 20,
-    marginTop: 8
-  },
-  big: {
-    color: '#fff',
-    fontSize: 23,
-    fontWeight: 'bold'
-  },
-  small: {
-    color: '#777',
-    fontSize: 13,
-    marginTop: 4
-  },
-  list: {
-    paddingHorizontal: 10,
-    paddingBottom: 20
-  },
+  header: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 },
+  greeting: { color: '#fff', fontSize: 22, fontWeight: 'bold' },
+  sub: { color: '#666', fontSize: 13, marginTop: 4 },
   card: {
-    flex: 1,
-    margin: 8,
-    padding: 18,
-    borderRadius: 18,
-    alignItems: 'center',
-    backgroundColor: '#1A1A1A',
-    borderWidth: 1,
-    borderColor: '#333',
-    elevation: 2
+    flex: 1, margin: 8, borderRadius: 16,
+    backgroundColor: '#1A1A1A', overflow: 'hidden',
+    borderWidth: 1, borderColor: '#2a2a2a'
   },
-  img: {
-    width: '100%',
-    height: 90,
-    resizeMode: 'contain'
-  },
-  title: {
-    marginTop: 10,
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '600'
-  }
+  thumb: { width: '100%', height: 90, resizeMode: 'contain', marginTop: 12 },
+  cardFooter: { padding: 12, alignItems: 'center' },
+  label: { color: '#fff', fontWeight: '600', fontSize: 13 },
+  errIcon: { fontSize: 36, marginBottom: 12 },
+  errMsg: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  errSub: { color: '#666', fontSize: 13, marginTop: 6, marginBottom: 20 },
+  retryBtn: { paddingVertical: 10, paddingHorizontal: 28, backgroundColor: '#fff', borderRadius: 20 },
+  retryText: { color: '#000', fontWeight: '700', fontSize: 14 },
+  skeletonGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 8 },
+  skeleton: { opacity: 0.35 },
+  skeletonThumb: { width: '100%', height: 90, backgroundColor: '#2a2a2a', borderRadius: 8, marginTop: 12 },
+  skeletonLabel: { height: 12, width: '60%', backgroundColor: '#2a2a2a', borderRadius: 6, margin: 12, alignSelf: 'center' },
+  skeletonTitle: { height: 20, width: '50%', backgroundColor: '#1e1e1e', borderRadius: 6, marginBottom: 8 },
+  skeletonSub: { height: 12, width: '30%', backgroundColor: '#1e1e1e', borderRadius: 6 }
 });

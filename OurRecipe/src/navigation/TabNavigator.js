@@ -1,25 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import HomeScreen from '../screens/HomeScreen';
 import BrowseScreen from '../screens/BrowseScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import SearchScreen from '../screens/SearchScreen';
+import AboutScreen from '../screens/AboutScreen';
 
 const Tab = createBottomTabNavigator();
-
-function PlaceholderScreen({ name }) {
-  return (
-    <View style={styles.wrap}>
-      <View style={styles.card}>
-        <Text style={styles.title}>{name.toUpperCase()}</Text>
-        <View style={styles.divider} />
-        <Text style={styles.desc}>Halaman {name} belum tersedia</Text>
-      </View>
-    </View>
-  );
-}
 
 const tabOptions = {
   headerStyle: {
@@ -49,19 +37,7 @@ export default function TabNavigator() {
       <Tab.Screen name="Browse" component={BrowseScreen} />
       <Tab.Screen name="Search" component={SearchScreen} />
       <Tab.Screen name="Favorites" component={FavoritesScreen} options={{ title: 'Favorit' }} />
-      <Tab.Screen name="About">{() => <PlaceholderScreen name="Profil" />}</Tab.Screen>
+      <Tab.Screen name="About" component={AboutScreen} options={{ title: 'Profil' }} />
     </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0D0D0D', padding: 26 },
-  card: {
-    width: '100%', padding: 22, borderRadius: 14,
-    backgroundColor: '#1A1A1A', borderWidth: 1,
-    borderColor: '#222', alignItems: 'center'
-  },
-  title: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-  divider: { height: 2, width: 32, backgroundColor: '#333', marginBottom: 14 },
-  desc: { color: '#666', fontSize: 13, textAlign: 'center' }
-});

@@ -15,21 +15,12 @@ export default function SearchScreen({ navigation }) {
 
   async function doSearch() {
     const trimmed = query.trim();
-
-    if (!trimmed) {
-      setMessage('Kolom pencarian tidak boleh kosong');
-      return;
-    }
-    if (trimmed.length < 3) {
-      setMessage('Minimal 3 karakter ya');
-      return;
-    }
-
+    if (!trimmed) { setMessage('Kolom pencarian tidak boleh kosong'); return; }
+    if (trimmed.length < 3) { setMessage('Minimal 3 karakter ya'); return; }
     setMessage('');
     setLoading(true);
     setHasSearched(true);
     Keyboard.dismiss();
-
     try {
       const res = await recipeApi.searchRecipes(trimmed);
       const meals = res?.meals ?? [];
@@ -51,10 +42,7 @@ export default function SearchScreen({ navigation }) {
   }
 
   function openDetail(item) {
-    navigation.navigate('Detail', {
-      recipeId: item.idMeal,
-      title: item.strMeal
-    });
+    navigation.navigate('Detail', { recipeId: item.idMeal, title: item.strMeal });
   }
 
   return (
@@ -64,12 +52,9 @@ export default function SearchScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Cari resep..."
-            placeholderTextColor="#555"
+            placeholderTextColor="#A9B388"
             value={query}
-            onChangeText={val => {
-              setQuery(val);
-              if (val.length >= 3) setMessage('');
-            }}
+            onChangeText={val => { setQuery(val); if (val.length >= 3) setMessage(''); }}
             onSubmitEditing={doSearch}
             returnKeyType="search"
           />
@@ -92,8 +77,8 @@ export default function SearchScreen({ navigation }) {
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#fff" />
-          <Text style={styles.loadingText}>dengan mencari...</Text>
+          <ActivityIndicator size="large" color="#5F6F52" />
+          <Text style={styles.loadingText}>Sedang mencari...</Text>
         </View>
       ) : (
         <FlatList
@@ -141,44 +126,41 @@ export default function SearchScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0D0D0D' },
+  root: { flex: 1, backgroundColor: '#FEFAE0' },
   topBar: { flexDirection: 'row', padding: 16, alignItems: 'center', gap: 10 },
   inputWrap: {
     flex: 1, flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#1A1A1A', borderRadius: 12,
-    paddingHorizontal: 12, borderWidth: 1, borderColor: '#2a2a2a', height: 48
-  },
-  inputError: { borderColor: '#ff4444' },
-  searchIcon: { fontSize: 14, marginRight: 8 },
-  input: { flex: 1, color: '#fff', fontSize: 14 },
-  clearBtn: { color: '#555', fontSize: 15, paddingLeft: 8 },
-  searchBtn: {
     backgroundColor: '#fff', borderRadius: 12,
+    paddingHorizontal: 12, borderWidth: 1, borderColor: '#A9B388', height: 48
+  },
+  inputError: { borderColor: '#cc6666' },
+  input: { flex: 1, color: '#2C2C2C', fontSize: 14 },
+  clearBtn: { color: '#A9B388', fontSize: 15, paddingLeft: 8 },
+  searchBtn: {
+    backgroundColor: '#5F6F52', borderRadius: 12,
     paddingHorizontal: 18, height: 48, justifyContent: 'center'
   },
-  searchBtnText: { color: '#000', fontWeight: '700', fontSize: 14 },
+  searchBtnText: { color: '#FEFAE0', fontWeight: '700', fontSize: 14 },
   msgWrap: { paddingHorizontal: 16, marginBottom: 6 },
-  msgText: { color: '#ff4444', fontSize: 13 },
+  msgText: { color: '#cc6666', fontSize: 13 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { color: '#666', marginTop: 10, fontSize: 13 },
-  resultCount: { color: '#666', fontSize: 13, marginBottom: 12 },
+  loadingText: { color: '#5F6F52', marginTop: 10, fontSize: 13 },
+  resultCount: { color: '#5F6F52', fontSize: 13, marginBottom: 12 },
   card: {
-    flexDirection: 'row', backgroundColor: '#1A1A1A',
+    flexDirection: 'row', backgroundColor: '#fff',
     marginBottom: 12, borderRadius: 14, overflow: 'hidden',
-    borderWidth: 1, borderColor: '#2a2a2a'
+    borderWidth: 1, borderColor: '#A9B388'
   },
   thumb: { width: 95, height: 90 },
   cardInfo: { flex: 1, padding: 12, justifyContent: 'center' },
-  cardTitle: { color: '#fff', fontSize: 14, fontWeight: '600', lineHeight: 19 },
+  cardTitle: { color: '#2C2C2C', fontSize: 14, fontWeight: '600', lineHeight: 19 },
   tagRow: { flexDirection: 'row', marginTop: 7, gap: 6 },
   tag: {
-    backgroundColor: '#111', borderRadius: 20,
-    paddingHorizontal: 8, paddingVertical: 3,
-    borderWidth: 1, borderColor: '#333'
+    backgroundColor: '#B99470', borderRadius: 20,
+    paddingHorizontal: 8, paddingVertical: 3
   },
-  tagText: { color: '#777', fontSize: 10 },
+  tagText: { color: '#FEFAE0', fontSize: 10, fontWeight: '500' },
   emptyWrap: { alignItems: 'center', marginTop: 80 },
-  emptyIcon: { fontSize: 44, marginBottom: 14 },
-  emptyTitle: { color: '#fff', fontSize: 16, fontWeight: '600', marginBottom: 6 },
-  emptyDesc: { color: '#555', fontSize: 13 }
+  emptyTitle: { color: '#2C2C2C', fontSize: 16, fontWeight: '600', marginBottom: 6 },
+  emptyDesc: { color: '#5F6F52', fontSize: 13 }
 });

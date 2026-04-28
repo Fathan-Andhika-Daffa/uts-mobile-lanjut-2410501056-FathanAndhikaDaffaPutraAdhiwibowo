@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { recipeApi } from '../api/recipeApi';
 import useFavoriteStore from '../store/favoriteStore';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -18,9 +19,7 @@ export default function DetailScreen({ route }) {
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
 
-  useEffect(() => {
-    loadDetail();
-  }, [recipeId]);
+  useEffect(() => { loadDetail(); }, [recipeId]);
 
   async function loadDetail() {
     setLoading(true);
@@ -53,7 +52,7 @@ export default function DetailScreen({ route }) {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#fff" />
+        <ActivityIndicator size="large" color="#5F6F52" />
         <Text style={styles.loadingText}>Memuat resep...</Text>
       </View>
     );
@@ -62,7 +61,6 @@ export default function DetailScreen({ route }) {
   if (loadFailed || !meal) {
     return (
       <View style={styles.centered}>
-        <Text style={{ fontSize: 32, marginBottom: 12 }}>🍽️</Text>
         <Text style={styles.failText}>Resep tidak ditemukan</Text>
         <TouchableOpacity style={styles.retryBtn} onPress={loadDetail}>
           <Text style={styles.retryText}>Coba Lagi</Text>
@@ -84,15 +82,23 @@ export default function DetailScreen({ route }) {
             activeOpacity={0.8}
             onPress={() => toggleFavorite(meal)}
           >
-            <Text style={{ fontSize: 22 }}>{favorited ? '❤️' : '🤍'}</Text>
+            <Icon
+              name={favorited ? 'favorite' : 'favorite-border'}
+              size={24}
+              color={favorited ? '#B99470' : '#A9B388'}
+            />
           </TouchableOpacity>
         </View>
 
         <View style={styles.body}>
           <Text style={styles.name}>{meal.strMeal}</Text>
           <View style={styles.tagRow}>
-            {meal.strCategory ? <View style={styles.tag}><Text style={styles.tagText}>{meal.strCategory}</Text></View> : null}
-            {meal.strArea ? <View style={styles.tag}><Text style={styles.tagText}>{meal.strArea}</Text></View> : null}
+            {meal.strCategory ? (
+              <View style={styles.tag}><Text style={styles.tagText}>{meal.strCategory}</Text></View>
+            ) : null}
+            {meal.strArea ? (
+              <View style={styles.tag}><Text style={styles.tagText}>{meal.strArea}</Text></View>
+            ) : null}
           </View>
 
           <View style={styles.divider} />
@@ -126,34 +132,37 @@ export default function DetailScreen({ route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0D0D0D' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0D0D0D' },
-  loadingText: { color: '#666', marginTop: 10, fontSize: 13 },
-  failText: { color: '#fff', fontSize: 15, fontWeight: '600', marginBottom: 16 },
-  retryBtn: { paddingVertical: 10, paddingHorizontal: 24, backgroundColor: '#fff', borderRadius: 20 },
-  retryText: { color: '#000', fontWeight: '700' },
+  container: { flex: 1, backgroundColor: '#FEFAE0' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FEFAE0' },
+  loadingText: { color: '#5F6F52', marginTop: 10, fontSize: 13 },
+  failText: { color: '#2C2C2C', fontSize: 15, fontWeight: '600', marginBottom: 16 },
+  retryBtn: { paddingVertical: 10, paddingHorizontal: 24, backgroundColor: '#5F6F52', borderRadius: 20 },
+  retryText: { color: '#FEFAE0', fontWeight: '700' },
   banner: { width: screenWidth, height: 280 },
   favBtn: {
     position: 'absolute', right: 20, bottom: -22,
-    backgroundColor: '#1A1A1A', width: 52, height: 52,
+    backgroundColor: '#FEFAE0', width: 52, height: 52,
     borderRadius: 26, justifyContent: 'center', alignItems: 'center',
-    elevation: 5, borderWidth: 1, borderColor: '#333'
+    elevation: 5, borderWidth: 1, borderColor: '#A9B388'
   },
   body: { padding: 18, paddingTop: 32 },
-  name: { color: '#fff', fontSize: 22, fontWeight: 'bold', lineHeight: 28 },
+  name: { color: '#2C2C2C', fontSize: 22, fontWeight: 'bold', lineHeight: 28 },
   tagRow: { flexDirection: 'row', marginTop: 10, gap: 8 },
-  tag: { backgroundColor: '#1e1e1e', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, borderWidth: 1, borderColor: '#333' },
-  tagText: { color: '#aaa', fontSize: 12 },
-  divider: { height: 1, backgroundColor: '#1e1e1e', marginVertical: 20 },
-  sectionTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  sectionSub: { color: '#555', fontSize: 12, marginTop: 3, marginBottom: 14 },
+  tag: {
+    backgroundColor: '#B99470', borderRadius: 20,
+    paddingHorizontal: 12, paddingVertical: 5
+  },
+  tagText: { color: '#FEFAE0', fontSize: 12, fontWeight: '500' },
+  divider: { height: 1, backgroundColor: '#A9B388', marginVertical: 20 },
+  sectionTitle: { color: '#2C2C2C', fontSize: 16, fontWeight: 'bold' },
+  sectionSub: { color: '#5F6F52', fontSize: 12, marginTop: 3, marginBottom: 14 },
   ingredientGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   ingredientChip: {
-    backgroundColor: '#1A1A1A', borderRadius: 10,
+    backgroundColor: '#fff', borderRadius: 10,
     paddingHorizontal: 12, paddingVertical: 8,
-    borderWidth: 1, borderColor: '#2a2a2a', minWidth: 90
+    borderWidth: 1, borderColor: '#A9B388', minWidth: 90
   },
-  chipIngredient: { color: '#fff', fontSize: 12, fontWeight: '600' },
-  chipMeasure: { color: '#666', fontSize: 11, marginTop: 2 },
-  instructions: { color: '#bbb', fontSize: 14, lineHeight: 22, marginBottom: 12, textAlign: 'justify' }
+  chipIngredient: { color: '#2C2C2C', fontSize: 12, fontWeight: '600' },
+  chipMeasure: { color: '#5F6F52', fontSize: 11, marginTop: 2 },
+  instructions: { color: '#2C2C2C', fontSize: 14, lineHeight: 22, marginBottom: 12, textAlign: 'justify' }
 });

@@ -4,16 +4,14 @@ import {
   TouchableOpacity, StyleSheet
 } from 'react-native';
 import useFavoriteStore from '../store/favoriteStore';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function FavoritesScreen({ navigation }) {
   const favorites = useFavoriteStore(state => state.favorites);
   const toggleFavorite = useFavoriteStore(state => state.toggleFavorite);
 
   function openDetail(item) {
-    navigation.navigate('Detail', {
-      recipeId: item.idMeal,
-      title: item.strMeal
-    });
+    navigation.navigate('Detail', { recipeId: item.idMeal, title: item.strMeal });
   }
 
   return (
@@ -44,7 +42,7 @@ export default function FavoritesScreen({ navigation }) {
               onPress={() => toggleFavorite(item)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Text style={{ fontSize: 18 }}>❤️</Text>
+              <Icon name="favorite" size={22} color="#B99470" />
             </TouchableOpacity>
           </TouchableOpacity>
         )}
@@ -80,31 +78,29 @@ export default function FavoritesScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  main: { flex: 1, backgroundColor: '#0D0D0D' },
+  main: { flex: 1, backgroundColor: '#FEFAE0' },
   header: { paddingHorizontal: 18, paddingTop: 20, paddingBottom: 10 },
-  title: { color: '#fff', fontSize: 26, fontWeight: 'bold' },
-  sub: { color: '#666', fontSize: 13, marginTop: 4 },
+  title: { color: '#2C2C2C', fontSize: 26, fontWeight: 'bold' },
+  sub: { color: '#5F6F52', fontSize: 13, marginTop: 4 },
   card: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#1A1A1A', marginHorizontal: 16,
+    backgroundColor: '#fff', marginHorizontal: 16,
     marginBottom: 12, borderRadius: 14, overflow: 'hidden',
-    borderWidth: 1, borderColor: '#2a2a2a'
+    borderWidth: 1, borderColor: '#A9B388'
   },
   img: { width: 100, height: 85 },
   info: { flex: 1, padding: 12 },
-  name: { color: '#fff', fontSize: 14, fontWeight: '600', lineHeight: 19 },
+  name: { color: '#2C2C2C', fontSize: 14, fontWeight: '600', lineHeight: 19 },
   tagRow: { flexDirection: 'row', marginTop: 7, gap: 6 },
   tag: {
-    backgroundColor: '#111', borderRadius: 20,
-    paddingHorizontal: 8, paddingVertical: 3,
-    borderWidth: 1, borderColor: '#333'
+    backgroundColor: '#B99470', borderRadius: 20,
+    paddingHorizontal: 8, paddingVertical: 3
   },
-  tagText: { color: '#777', fontSize: 10 },
+  tagText: { color: '#FEFAE0', fontSize: 10, fontWeight: '500' },
   removeBtn: { padding: 14 },
   empty: { marginTop: 80, alignItems: 'center', paddingHorizontal: 36 },
-  emptyIcon: { fontSize: 48, marginBottom: 14 },
-  emptyTitle: { color: '#fff', fontSize: 17, fontWeight: '700', marginBottom: 8 },
-  emptyDesc: { color: '#555', fontSize: 13, textAlign: 'center', lineHeight: 20, marginBottom: 24 },
-  exploreBtn: { backgroundColor: '#fff', borderRadius: 22, paddingVertical: 11, paddingHorizontal: 28 },
-  exploreBtnText: { color: '#000', fontWeight: '700', fontSize: 14 }
+  emptyTitle: { color: '#2C2C2C', fontSize: 17, fontWeight: '700', marginBottom: 8 },
+  emptyDesc: { color: '#5F6F52', fontSize: 13, textAlign: 'center', lineHeight: 20, marginBottom: 24 },
+  exploreBtn: { backgroundColor: '#5F6F52', borderRadius: 22, paddingVertical: 11, paddingHorizontal: 28 },
+  exploreBtnText: { color: '#FEFAE0', fontWeight: '700', fontSize: 14 }
 });

@@ -1,177 +1,123 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
+import {
+  View, Text, FlatList, Image,
+  TouchableOpacity, StyleSheet,
+  ActivityIndicator, RefreshControl
+} from 'react-native';
 import { recipeApi } from '../api/recipeApi';
 
 export default function BrowseScreen({ route, navigation }) {
-  const cat = route?.params?.category || 'Beef';
+  const cat = route?.params?.category ?? 'Beef';
 
-  const [dataList, setDataList] = useState([]);
+  const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [pulling, setPulling] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    initLoad();
-  }, [cat]);
+  useEffect(() => { fetchRecipes(); }, [cat]);
 
-  const initLoad = async () => {
-    setLoading(true);
-    await fetchData();
-    setLoading(false);
-  };
-
-  const handleRefresh = async () => {
-    setPulling(true);
-    await fetchData();
-    setPulling(false);
-  };
-
-  const fetchData = async () => {
+  async function fetchRecipes() {
+    setFailed(false);
     try {
       const res = await recipeApi.getRecipesByCategory(cat);
-
-      let list = [];
-
-      if (res && res.meals) {
-        list = res.meals;
-      }
-
-      setDataList(list);
-    } catch (err) {
-      setDataList([]);
-      console.log('fetch error:', err);
+      setRecipes(res?.meals ?? []);
+    } catch (e) {
+      setFailed(true);
+    } finally {
+      setLoading(false);
     }
-  };
+  }
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    await fetchRecipes();
+    setRefreshing(false);
+  }
 
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#fff" />
-        <Text style={styles.loadingTxt}>Mencari resep...</Text>
+        <ActivityIndicator size="large" color="#5F6F52" />
+        <Text style={styles.loadingText}>Mencari resep...</Text>
       </View>
     );
   }
 
-  const renderItem = ({ item }) => {
-    const name = item.strMeal;
-    const img = item.strMealThumb;
-
+  if (failed) {
     return (
-      <TouchableOpacity
-        style={styles.card}
-        activeOpacity={0.7}
-        onPress={() =>
-          navigation.navigate('Detail', {
-            recipeId: item.idMeal,
-            title: name
-          })
-        }
-      >
-        <Image source={{ uri: img }} style={styles.image} />
-
-        <View style={styles.textBox}>
-          <Text numberOfLines={2} style={styles.title}>
-            {name}
-          </Text>
-        </View>
-      </TouchableOpacity>
+      <View style={styles.center}>
+        <Text style={styles.errMsg}>Gagal memuat resep</Text>
+        <Text style={styles.errSub}>Periksa koneksi internet kamu</Text>
+        <TouchableOpacity style={styles.retryBtn} onPress={fetchRecipes}>
+          <Text style={styles.retryText}>Coba Lagi</Text>
+        </TouchableOpacity>
+      </View>
     );
-  };
-
-  const total = dataList.length;
+  }
 
   return (
-    <View style={styles.wrap}>
+    <View style={styles.main}>
       <FlatList
-        data={dataList}
-        renderItem={renderItem}
-        keyExtractor={(item, idx) => item.idMeal || idx.toString()}
+        data={recipes}
+        keyExtractor={(item, idx) => item.idMeal ?? idx.toString()}
         numColumns={2}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.card}
+            activeOpacity={0.75}
+            onPress={() => navigation.navigate('Detail', { recipeId: item.idMeal, title: item.strMeal })}
+          >
+            <Image source={{ uri: item.strMealThumb }} style={styles.thumb} />
+            <View style={styles.cardFooter}>
+              <Text numberOfLines={2} style={styles.label}>{item.strMeal}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Koleksi {cat}</Text>
-            <Text style={styles.sub}>{total} item</Text>
+            <Text style={styles.heading}>Koleksi {cat}</Text>
+            <Text style={styles.sub}>{recipes.length} resep tersedia</Text>
           </View>
         }
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyText}>Tidak ada data</Text>
+            <Text style={styles.emptyTitle}>Tidak ada resep</Text>
+            <Text style={styles.emptyDesc}>Kategori ini belum tersedia</Text>
           </View>
         }
         refreshControl={
-          <RefreshControl
-            refreshing={pulling}
-            onRefresh={handleRefresh}
-            tintColor="#fff"
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#5F6F52" />
         }
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    flex: 1,
-    backgroundColor: '#0D0D0D',
-    paddingHorizontal: 10
-  },
+  main: { flex: 1, backgroundColor: '#FEFAE0' },
   center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#0D0D0D'
+    flex: 1, justifyContent: 'center', alignItems: 'center',
+    backgroundColor: '#FEFAE0', padding: 24
   },
-  loadingTxt: {
-    color: '#777',
-    marginTop: 10,
-    fontSize: 13
-  },
-  header: {
-    marginVertical: 20,
-    marginLeft: 10
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: 'bold'
-  },
-  sub: {
-    color: '#777',
-    fontSize: 13,
-    marginTop: 3
-  },
+  loadingText: { color: '#5F6F52', marginTop: 10, fontSize: 13 },
+  errMsg: { color: '#2C2C2C', fontSize: 16, fontWeight: '600' },
+  errSub: { color: '#5F6F52', fontSize: 13, marginTop: 6, marginBottom: 20 },
+  retryBtn: { paddingVertical: 10, paddingHorizontal: 28, backgroundColor: '#5F6F52', borderRadius: 20 },
+  retryText: { color: '#FEFAE0', fontWeight: '700', fontSize: 14 },
+  header: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 },
+  heading: { color: '#2C2C2C', fontSize: 22, fontWeight: 'bold' },
+  sub: { color: '#5F6F52', fontSize: 13, marginTop: 4 },
   card: {
-    flex: 1,
-    margin: 8,
-    borderRadius: 16,
-    backgroundColor: '#1A1A1A',
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#333',
-    elevation: 3
+    flex: 1, margin: 8, borderRadius: 16,
+    backgroundColor: '#fff', overflow: 'hidden',
+    borderWidth: 1, borderColor: '#A9B388'
   },
-  image: {
-    width: '100%',
-    height: 160
-  },
-  textBox: {
-    padding: 12,
-    minHeight: 70,
-    justifyContent: 'center'
-  },
-  title: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center'
-  },
-  empty: {
-    marginTop: 50,
-    alignItems: 'center'
-  },
-  emptyText: {
-    color: '#777',
-    fontSize: 14
-  }
+  thumb: { width: '100%', height: 160 },
+  cardFooter: { padding: 12, minHeight: 52, justifyContent: 'center' },
+  label: { color: '#2C2C2C', fontWeight: '600', fontSize: 13, textAlign: 'center' },
+  empty: { marginTop: 80, alignItems: 'center', paddingHorizontal: 36 },
+  emptyTitle: { color: '#2C2C2C', fontSize: 17, fontWeight: '700', marginBottom: 8 },
+  emptyDesc: { color: '#5F6F52', fontSize: 13, textAlign: 'center' }
 });

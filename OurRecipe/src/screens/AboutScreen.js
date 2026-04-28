@@ -19,7 +19,6 @@ export default function AboutScreen() {
   return (
     <SafeAreaView style={styles.root}>
       <ScrollView contentContainerStyle={styles.wrap} showsVerticalScrollIndicator={false}>
-
         <View style={styles.profileSection}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>FA</Text>
@@ -40,7 +39,6 @@ export default function AboutScreen() {
             </View>
           ))}
         </View>
-        
         <Text style={styles.footer}>TA 2025/2026 • FIK UPNVJ</Text>
       </ScrollView>
     </SafeAreaView>
@@ -48,37 +46,37 @@ export default function AboutScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0D0D0D' },
+  root: { flex: 1, backgroundColor: '#FEFAE0' },
   wrap: { padding: 20, alignItems: 'center' },
   profileSection: { alignItems: 'center', marginTop: 24, marginBottom: 28 },
   avatar: {
     width: 100, height: 100, borderRadius: 50,
-    backgroundColor: '#fff', justifyContent: 'center',
+    backgroundColor: '#5F6F52', justifyContent: 'center',
     alignItems: 'center', marginBottom: 14,
-    borderWidth: 3, borderColor: '#2a2a2a'
+    borderWidth: 3, borderColor: '#A9B388'
   },
-  avatarText: { fontSize: 36, fontWeight: 'bold', color: '#000' },
-  name: { color: '#fff', fontSize: 20, fontWeight: 'bold', textAlign: 'center' },
-  nim: { color: '#666', fontSize: 14, marginTop: 5 },
+  avatarText: { fontSize: 36, fontWeight: 'bold', color: '#FEFAE0' },
+  name: { color: '#2C2C2C', fontSize: 20, fontWeight: 'bold', textAlign: 'center' },
+  nim: { color: '#5F6F52', fontSize: 14, marginTop: 5 },
   card: {
-    width: '100%', backgroundColor: '#1A1A1A',
+    width: '100%', backgroundColor: '#fff',
     padding: 18, borderRadius: 16,
-    borderWidth: 1, borderColor: '#2a2a2a', marginBottom: 16
+    borderWidth: 1, borderColor: '#A9B388', marginBottom: 16
   },
   cardTitle: {
-    color: '#555', fontSize: 11, fontWeight: '700',
+    color: '#A9B388', fontSize: 11, fontWeight: '700',
     letterSpacing: 1.2, marginBottom: 14
   },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 2 },
-  rowLabel: { color: '#666', fontSize: 14 },
-  rowValue: { color: '#ddd', fontSize: 14, fontWeight: '500', flexShrink: 1, textAlign: 'right', marginLeft: 12 },
-  sep: { height: 1, backgroundColor: '#222', marginVertical: 10 },
-  desc: { color: '#888', fontSize: 14, lineHeight: 20, marginBottom: 14 },
+  rowLabel: { color: '#5F6F52', fontSize: 14 },
+  rowValue: { color: '#2C2C2C', fontSize: 14, fontWeight: '500', flexShrink: 1, textAlign: 'right', marginLeft: 12 },
+  sep: { height: 1, backgroundColor: '#A9B388', marginVertical: 10 },
+  desc: { color: '#5F6F52', fontSize: 14, lineHeight: 20, marginBottom: 14 },
   linkBtn: {
-    backgroundColor: '#fff', borderRadius: 10,
+    backgroundColor: '#5F6F52', borderRadius: 10,
     paddingVertical: 10, paddingHorizontal: 16,
     alignSelf: 'flex-start'
   },
-  linkBtnText: { color: '#000', fontWeight: '700', fontSize: 13 },
-  footer: { color: '#333', fontSize: 12, marginTop: 8, marginBottom: 20 }
+  linkBtnText: { color: '#FEFAE0', fontWeight: '700', fontSize: 13 },
+  footer: { color: '#A9B388', fontSize: 12, marginTop: 8, marginBottom: 20 }
 });
